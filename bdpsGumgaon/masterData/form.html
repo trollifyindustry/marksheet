@@ -163,7 +163,7 @@ button:hover{
 <input type="text" id="studentClass" placeholder="Class" required>
 <input type="text" id="father" placeholder="Father Name" required>
 <input type="text" id="mother" placeholder="Mother Name" required>
-<input type="file" id="photo" accept="image/*" required>
+<input type="file" id="photo" accept="image/*" >
 
 <div class="progress">
   <div class="progress-bar" id="progressBar"></div>
@@ -177,193 +177,7 @@ button:hover{
 <div class="spinner" id="spinner"></div>
 
 
-<script>
 
-const scriptURL = "https://script.google.com/macros/s/AKfycbyvGYkov-60F_tCS2QDJAfJ9RaLS5gagW6PzZ3XyDi0Yqo6uUUqe5Agunvws9bP4B9rvg/exec";
-
-async function compressTo2MB(file){
-  return new Promise((resolve)=>{
-
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-
-    reader.onload = function(e){
-
-      const img = new Image();
-      img.src = e.target.result;
-
-      img.onload = function(){
-
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-
-        canvas.width = img.width;
-        canvas.height = img.height;
-
-        ctx.drawImage(img,0,0);
-
-        let quality = 0.9;
-        let compressed;
-
-        function reduce(){
-
-          compressed = canvas.toDataURL("image/jpeg", quality);
-
-          const size =
-            Math.round((compressed.length * 3) / 4);
-
-          document.getElementById("progressBar")
-            .style.width =
-            Math.round((1-quality)*100) + "%";
-
-          if(size > 2 * 1024 * 1024 && quality > 0.1){
-            quality -= 0.05;
-            setTimeout(reduce,100);
-          }else{
-            document.getElementById("progressBar")
-              .style.width = "100%";
-            resolve(compressed);
-          }
-        }
-
-        reduce();
-      }
-    }
-  });
-}
-
-document.getElementById("studentForm")
-.addEventListener("submit", async function(e){
-
-e.preventDefault();
-
-const confirm = await Swal.fire({
-  title:'Are you sure?',
-  icon:'question',
-  showCancelButton:true
-});
-
-if(!confirm.isConfirmed) return;
-
-document.getElementById("spinner").style.display="block";
-
-const file =
-  document.getElementById("photo").files[0];
-
-let photoData;
-
-if(file.size > 2 * 1024 * 1024){
-  photoData = await compressTo2MB(file);
-}else{
-  photoData = await new Promise((resolve)=>{
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload=e=>resolve(e.target.result);
-  });
-  document.getElementById("progressBar")
-    .style.width="100%";
-}
-
-document.getElementById("studentForm")
-.addEventListener("submit", async function(e){
-
-e.preventDefault();
-
-const confirm = await Swal.fire({
-  title:'Are you sure?',
-  icon:'question',
-  showCancelButton:true
-});
-
-if(!confirm.isConfirmed) return;
-
-document.getElementById("spinner").style.display="block";
-
-const file = document.getElementById("photo").files[0];
-
-let photoData;
-
-if(file.size > 2 * 1024 * 1024){
-  photoData = await compressTo2MB(file);
-}else{
-  photoData = await new Promise((resolve)=>{
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload=e=>resolve(e.target.result);
-  });
-}
-
-const data = {
-  scholar: scholar.value,
-  roll: roll.value,
-  studentName: studentName.value,
-  gender: gender.value,
-  dob: dob.value,
-  studentClass: studentClass.value,
-  father: father.value,
-  mother: mother.value,
-  photo: photoData,
-  photoType: file.type
-};
-
-fetch(scriptURL,{
-  method:"POST",
-  body: JSON.stringify(data)
-})
-.then(res=>res.json())
-.then(res=>{
-
-  document.getElementById("spinner").style.display="none";
-
-  if(res.status==="success"){
-    Swal.fire(
-      "Success",
-      "Student Data Saved Successfully",
-      "success"
-    );
-    studentForm.reset();
-  }else{
-    Swal.fire("Error",res.message,"error");
-  }
-
-})
-.catch(()=>{
-  document.getElementById("spinner").style.display="none";
-  Swal.fire("Error","Submission Failed","error");
-});
-
-});b
-
-fetch(scriptURL,{
-  method:"POST",
-  body: JSON.stringify(data)
-})
-.then(res=>res.json())
-.then(res=>{
-
-  document.getElementById("spinner").style.display="none";
-
-  if(res.status==="success"){
-    Swal.fire(
-      "Success",
-      "Student Data Saved Successfully",
-      "success"
-    );
-    studentForm.reset();
-    progressBar.style.width="0%";
-  }else{
-    Swal.fire("Error",res.message,"error");
-  }
-
-})
-.catch(()=>{
-  document.getElementById("spinner").style.display="none";
-  Swal.fire("Error","Submission Failed","error");
-});
-
-});
-
-</script>
 <script>
 
 window.onload = function() {
@@ -397,6 +211,115 @@ function formatDate(dateString){
 }
 
 </script>
+<script>
+
+const scriptURL = "https://script.google.com/macros/s/AKfycbyKY4ojP5EBZqLUqx1TlvnNx1pLJHSK_jTLq6vtpO2ha5CjCUyFUbUtVFlXIm8oMzxF/exec";
+
+document.getElementById("studentForm")
+.addEventListener("submit", async function(e){
+
+  e.preventDefault();
+
+  const confirmBox = await Swal.fire({
+    title: 'Are you sure?',
+    icon: 'question',
+    showCancelButton: true
+  });
+
+  if(!confirmBox.isConfirmed) return;
+
+  const spinner = document.getElementById("spinner");
+  spinner.style.display = "block";
+
+  const file = document.getElementById("photo").files[0];
+
+  if(!file){
+    spinner.style.display="none";
+    Swal.fire("Error","Please select photo","error");
+    return;
+  }
+
+  // ✅ COMPRESS IMAGE BEFORE SENDING
+  const compressedImage = await compressImage(file);
+
+  const data = {
+    scholar: document.getElementById("scholar").value,
+    roll: document.getElementById("roll").value,
+    studentName: document.getElementById("studentName").value,
+    gender: document.getElementById("gender").value,
+    dob: document.getElementById("dob").value,
+    studentClass: document.getElementById("studentClass").value,
+    father: document.getElementById("father").value,
+    mother: document.getElementById("mother").value,
+    photo: compressedImage,
+    photoType: "image/jpeg"
+  };
+
+  fetch(scriptURL,{
+    method:"POST",
+    body: JSON.stringify(data)
+  })
+  .then(res=>res.json())
+  .then(result=>{
+
+    spinner.style.display="none";
+
+    if(result.status==="success"){
+      Swal.fire("Success","Data Saved","success");
+      document.getElementById("studentForm").reset();
+    }else{
+      Swal.fire("Error",result.message,"error");
+    }
+
+  })
+  .catch(()=>{
+    spinner.style.display="none";
+    Swal.fire("Error","Submission Failed","error");
+  });
+
+});
+
+
+// 🔥 IMAGE COMPRESS FUNCTION
+function compressImage(file){
+
+  return new Promise((resolve)=>{
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+
+    reader.onload = function(e){
+
+      const img = new Image();
+      img.src = e.target.result;
+
+      img.onload = function(){
+
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        const maxWidth = 800;   // reduce resolution
+        const scale = maxWidth / img.width;
+
+        canvas.width = maxWidth;
+        canvas.height = img.height * scale;
+
+        ctx.drawImage(img,0,0,canvas.width,canvas.height);
+
+        const compressed = canvas.toDataURL("image/jpeg",0.6); 
+        // 0.6 quality → 300-500KB approx
+
+        resolve(compressed);
+      }
+    }
+
+  });
+
+}
+
+</script>
+
+
 </body>
 </html>
 
@@ -405,64 +328,64 @@ function formatDate(dateString){
 
 
 
-
 function doPost(e) {
   try {
 
     const folderId = "1V625tZ_tCP3iOpUcY6KrqjM8NtMtqaL5";
-    const sheetId = "1qmN4OE3u174RHsiuS0rq20jaQH5ufQkrBjHD5rS9ejw";
+    const sheetId = "1Z3k_m1pHWuBHFCEZNAIWtrkO5m8NQFtOHHEFxZpnGjI";
 
     const folder = DriveApp.getFolderById(folderId);
-    const sheet = SpreadsheetApp.openById(sheetId).getSheets()[0];
+
+    const sheet = SpreadsheetApp
+      .openById(sheetId)
+      .getSheetByName("Sheet1");   // ✅ FIXED
+
+    if (!sheet) {
+      throw new Error("Sheet1 not found");
+    }
 
     const data = JSON.parse(e.postData.contents);
 
-    // ✅ Decode Image
-    const contentType = data.photoType;
     const base64Data = data.photo.split(',')[1];
 
     const blob = Utilities.newBlob(
       Utilities.base64Decode(base64Data),
-      contentType,
+      data.photoType,
       data.studentName.replace(/\s+/g,"").toLowerCase()+".jpg"
     );
 
     const file = folder.createFile(blob);
 
-    // ✅ Make Public
     file.setSharing(
       DriveApp.Access.ANYONE_WITH_LINK,
       DriveApp.Permission.VIEW
     );
 
-    const fileId = file.getId();
-
-    // ✅ lh3 Direct Image URL Format
     const photoUrl =
-      "https://lh3.googleusercontent.com/d/" + fileId + "=s0";
+      "https://lh3.googleusercontent.com/d/" +
+      file.getId() + "=s0";
 
-    // ✅ Save to Sheet
     sheet.appendRow([
-      data.scholar,      // A
-      data.roll,         // B
-      data.studentName,  // C
-      data.gender,       // D
-      data.dob,          // E
-      data.studentClass, // F
-      data.father,       // G
-      data.mother,       // H
-      photoUrl,          // I
-      new Date()         // J
+      data.scholar,
+      data.roll,
+      data.studentName,
+      data.gender,
+      data.dob,
+      data.studentClass,
+      data.father,
+      data.mother,
+      photoUrl,
+      new Date()
     ]);
 
     return ContentService
       .createTextOutput(JSON.stringify({
-        status: "success",
-        imageUrl: photoUrl
+        status: "success"
       }))
       .setMimeType(ContentService.MimeType.JSON);
 
   } catch(err) {
+
     return ContentService
       .createTextOutput(JSON.stringify({
         status: "error",
@@ -473,4 +396,4 @@ function doPost(e) {
 }
 
 
------>
+---->
