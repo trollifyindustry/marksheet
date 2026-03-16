@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Student Admission</title>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+/* RESET */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+/* BODY */
+body{
+  font-family:'Segoe UI', Arial, sans-serif;
+  background:linear-gradient(135deg,#ffffff,#f3e8ff);
+  color:#4a148c;
+  text-align:center;
+  padding:20px;
+}
+
+/* HEADING */
+h2{
+  color:#6a1b9a;
+  margin-bottom:20px;
+  font-size:22px;
+}
+
+/* FORM */
+form{
+  background:#ffffff;
+  padding:25px;
+  border-radius:18px;
+  width:100%;
+  max-width:420px;
+  margin:auto;
+  box-shadow:0 8px 25px rgba(106,27,154,0.15);
+  transition:0.3s;
+}
+
+/* INPUT & SELECT */
+input,select{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border-radius:25px;
+  border:2px solid #e1bee7;
+  outline:none;
+  font-size:14px;
+  transition:0.3s;
+  color:#4a148c;
+}
+
+input:focus,select:focus{
+  border-color:#8e24aa;
+  box-shadow:0 0 8px rgba(142,36,170,0.3);
+}
+
+/* FILE INPUT */
+input[type="file"]{
+  border-radius:12px;
+  padding:8px;
+  background:#f9f4ff;
+}
+
+/* BUTTON */
+button{
+  background:#ab47bc;
+  color:#fff;
+  padding:12px;
+  border:none;
+  border-radius:30px;
+  width:100%;
+  cursor:pointer;
+  font-size:15px;
+  font-weight:600;
+  margin-top:10px;
+  transition:0.3s;
+}
+
+button:hover{
+  background:#6a1b9a;
+  transform:scale(1.03);
+}
+
+/* PROGRESS BAR */
+.progress{
+  width:100%;
+  background:#f3e5f5;
+  border-radius:20px;
+  margin-top:15px;
+  overflow:hidden;
+  height:12px;
+}
+
+.progress-bar{
+  width:0%;
+  height:100%;
+  background:linear-gradient(90deg,#ce93d8,#8e24aa);
+  border-radius:20px;
+  transition:0.3s;
+}
+
+/* SPINNER */
+.spinner{
+  display:none;
+  border:4px solid #f3e5f5;
+  border-top:4px solid #8e24aa;
+  border-radius:50%;
+  width:35px;
+  height:35px;
+  animation:spin 1s linear infinite;
+  margin:25px auto;
+}
+
+@keyframes spin{
+  100%{transform:rotate(360deg);}
+}
+
+/* MOBILE RESPONSIVE */
+@media screen and (max-width:768px){
+
+  body{
+    padding:15px;
+  }
+
+  form{
+    padding:20px;
+    border-radius:15px;
+  }
+
+  h2{
+    font-size:18px;
+  }
+
+  input,select{
+    font-size:13px;
+    padding:9px;
+  }
+
+  button{
+    font-size:14px;
+    padding:10px;
+  }
+
+}
+</style>
+</head>
+<body>
+
+<h2>Student Database Form</h2>
+
+<form id="studentForm">
+
+<input type="text" id="scholar" placeholder="Scholar Number" required>
+<input type="text" id="roll" placeholder="Roll Number" required>
+<input type="text" id="studentName" placeholder="Student Name" required>
+<input type="text" id="gender" placeholder="Gender" required="required" >
+<input type="text" id="dob"  placeholder="date of Birth" required>
+<input type="text" id="studentClass" placeholder="Class" required>
+<input type="text" id="father" placeholder="Father Name" required>
+<input type="text" id="mother" placeholder="Mother Name" required>
+<input type="file" id="photo" accept="image/*" >
+
+<div class="progress">
+  <div class="progress-bar" id="progressBar"></div>
+</div>
+
+<br>
+<button type="submit">Submit</button>
+
+</form>
+
+<div class="spinner" id="spinner"></div>
+
+
+
+<script>
+
+window.onload = function() {
+
+  const params = new URLSearchParams(window.location.search);
+
+  document.getElementById("scholar").value = params.get("scholar") || "";
+  document.getElementById("roll").value = params.get("roll") || "";
+  document.getElementById("studentName").value = params.get("studentName") || "";
+  document.getElementById("gender").value = params.get("gender") || "";
+  document.getElementById("dob").value = formatDate(params.get("dob"));
+  document.getElementById("studentClass").value = params.get("studentClass") || "";  // ✅ IMPORTANT
+  document.getElementById("father").value = params.get("father") || "";
+  document.getElementById("mother").value = params.get("mother") || "";
+
+};
+
+
+// Date Format DD-MM-YYYY
+function formatDate(dateString){
+
+  if(!dateString) return "";
+
+  const date = new Date(dateString);
+
+  const dd = String(date.getDate()).padStart(2,'0');
+  const mm = String(date.getMonth()+1).padStart(2,'0');
+  const yyyy = date.getFullYear();
+
+  return `${dd}-${mm}-${yyyy}`;
+}
+
+</script>
+<script>
+
+const scriptURL = "https://script.google.com/macros/s/AKfycbwXScML_VSzbooQbggIFeER9_t3njUrHOVnpY1Mk3JEYXyE7lFiX9tezCcmW0Djqcf0ZA/exec";
+
+document.getElementById("studentForm")
+.addEventListener("submit", async function(e){
+
+  e.preventDefault();
+
+  const confirmBox = await Swal.fire({
+    title: 'Are you sure?',
+    icon: 'question',
+    showCancelButton: true
+  });
+
+  if(!confirmBox.isConfirmed) return;
+
+  const spinner = document.getElementById("spinner");
+  spinner.style.display = "block";
+
+  const file = document.getElementById("photo").files[0];
+
+  if(!file){
+    spinner.style.display="none";
+    Swal.fire("Error","Please select photo","error");
+    return;
+  }
+
+  // ✅ COMPRESS IMAGE BEFORE SENDING
+  const compressedImage = await compressImage(file);
+
+  const data = {
+    scholar: document.getElementById("scholar").value,
+    roll: document.getElementById("roll").value,
+    studentName: document.getElementById("studentName").value,
+    gender: document.getElementById("gender").value,
+    dob: document.getElementById("dob").value,
+    studentClass: document.getElementById("studentClass").value,
+    father: document.getElementById("father").value,
+    mother: document.getElementById("mother").value,
+    photo: compressedImage,
+    photoType: "image/jpeg"
+  };
+
+  fetch(scriptURL,{
+    method:"POST",
+    body: JSON.stringify(data)
+  })
+  .then(res=>res.json())
+  .then(result=>{
+
+    spinner.style.display="none";
+
+    if(result.status==="success"){
+      Swal.fire("Success","Data Saved","success");
+      document.getElementById("studentForm").reset();
+    }else{
+      Swal.fire("Error",result.message,"error");
+    }
+
+  })
+  .catch(()=>{
+    spinner.style.display="none";
+    Swal.fire("Error","Submission Failed","error");
+  });
+
+});
+
+
+// 🔥 IMAGE COMPRESS FUNCTION
+function compressImage(file){
+
+  return new Promise((resolve)=>{
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+
+    reader.onload = function(e){
+
+      const img = new Image();
+      img.src = e.target.result;
+
+      img.onload = function(){
+
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        const maxWidth = 800;   // reduce resolution
+        const scale = maxWidth / img.width;
+
+        canvas.width = maxWidth;
+        canvas.height = img.height * scale;
+
+        ctx.drawImage(img,0,0,canvas.width,canvas.height);
+
+        const compressed = canvas.toDataURL("image/jpeg",0.6); 
+        // 0.6 quality → 300-500KB approx
+
+        resolve(compressed);
+      }
+    }
+
+  });
+
+}
+
+</script>
+
+
+</body>
+</html>
+
+
+<!----
+
+
+
+function doPost(e) {
+  try {
+
+    const folderId = "1T9eCq0Kd6X8QG8cW9-SVse3CWCT8p3vE";
+    const sheetId = "1gknyz0nAZLqVrQAXGoZfxQDa0qvNS-R8nyENMbpkLKs";
+
+    const folder = DriveApp.getFolderById(folderId);
+
+    const sheet = SpreadsheetApp
+      .openById(sheetId)
+      .getSheetByName("Sheet1");   // ✅ FIXED
+
+    if (!sheet) {
+      throw new Error("Sheet1 not found");
+    }
+
+    const data = JSON.parse(e.postData.contents);
+
+    const base64Data = data.photo.split(',')[1];
+
+    const blob = Utilities.newBlob(
+      Utilities.base64Decode(base64Data),
+      data.photoType,
+      data.studentName.replace(/\s+/g,"").toLowerCase()+".jpg"
+    );
+
+    const file = folder.createFile(blob);
+
+    file.setSharing(
+      DriveApp.Access.ANYONE_WITH_LINK,
+      DriveApp.Permission.VIEW
+    );
+
+    const photoUrl =
+      "https://lh3.googleusercontent.com/d/" +
+      file.getId() + "=s0";
+
+    sheet.appendRow([
+      data.scholar,
+      data.roll,
+      data.studentName,
+      data.gender,
+      data.dob,
+      data.studentClass,
+      data.father,
+      data.mother,
+      photoUrl,
+      new Date()
+    ]);
+
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        status: "success"
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch(err) {
+
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        status: "error",
+        message: err.toString()
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+
+---->
