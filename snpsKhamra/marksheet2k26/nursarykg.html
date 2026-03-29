@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marksheet Print System</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+
+    <style>
+
+        .btn1 {
+            padding: 6px 30px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            transition-duration: 0.4s;
+            cursor: pointer;
+            border: 1.4px solid #000;
+            border-radius: 15px 0 10px 0;
+        }
+
+        .btn1:hover {
+            background-color: #04AA6D;
+            color: white;
+        }
+ </style>
+<style type="text/css">
+.infotable1{
+  width:70%;
+  position:absolute;
+  margin-left:45px;
+  font-size:15px;
+}
+
+.studentphoto{
+  position:absolute;
+  width:80px;
+  height:100px;
+  border:2px solid black;
+  border-radius:0px 0px  0px 0px;
+  margin-top: 210px;
+  margin-left:700px;
+}
+
+.nametable{
+  position:absolute;
+  width:100%;
+  margin-left:45px;
+  border:none;
+  text-align:left;
+  font-size:18px;
+}
+
+/* Name Section Style*/
+.name{
+  background-color:transparent;
+  text-align:left;
+  padding:3px 1px;
+  border:none;
+  font-size:16px;
+  height: 20px;
+}
+
+.marksHeading{
+  position:absolute;
+  margin-left:330px;
+  margin-top:80px;
+  font-size:18px;
+  border-bottom: 1px solid black;
+  padding-bottom: 2px;
+}
+
+/* Marks table style*/
+.mtt{
+  width:90%;
+  margin-left:45px;
+  font-size:13px;
+}
+.mtt th{
+  height: 10px;
+}
+.mtt td{
+  height: 30px;
+}
+
+.st{
+  width:88.8%;
+  margin-top:30px;
+  font-size:12px;
+  position:absolute;
+  margin-left:45px;
+  text-align:left;
+  height:150px;
+}
+
+
+
+.singnatureTd{
+  border:none;
+  text-align:center;
+  padding:1px;
+  font-size:16px;
+}
+.singnatureTable{
+  width:90%;
+  position:absolute;
+  margin-top:330px;
+  margin-left:45px;
+  
+}
+
+.prem-janghela{
+  position:absolute;
+  margin-top:354px;
+  margin-left:50px;
+  font-size:13px;
+  display:none;
+}
+
+
+.issueDate{
+  position:absolute;
+  color:black;
+  font-weight:bold;
+  margin-top:-625px;
+  font-size:22px;
+  margin-left:1400px;
+  display:none;
+}
+
+/* ✅ SINGLE QR / BARCODE */
+.qr{
+  position:absolute;
+  width:70px;
+  margin-left:1530px;
+  margin-top:-720px;
+  border:0.6px solid black;
+  display:none;
+}
+
+
+
+
+body{
+  font-family:Arial, sans-serif;
+}
+
+table{
+  border-collapse:collapse;
+  width:100%;
+  text-align:center;
+  position:absolute;
+  margin-top:100px;
+  font-size:22px;
+}
+
+th, td{
+  border:1px solid black;
+   padding: 3px;
+}
+
+.img{
+  position:absolute;
+  display:block;
+  width:99%;
+}
+
+.nam{
+  opacity:0%;
+  border:none;
+  padding:2px;
+}
+
+.bgimg{
+  width:47%;
+  opacity:15%;
+  position:absolute;
+  margin-left:450px;
+  margin-top:-90px;
+  display:none;
+}
+
+/*Grade Info table*/
+.lt{
+  width:15%;
+  font-size:11px;
+  margin-top:160px;
+  margin-left:65px;
+  text-align:center;
+    }
+
+.grade{
+      padding: 3.5px;
+ }
+
+
+/* ================= PRINT SETUP (ONLY ONCE) ================= */
+
+@page{
+  margin: 0px;
+}
+
+@media print{
+  body{
+    background:linear-gradient(to bottom, lightblue, navy) !important;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+
+  .btn{display:none;}
+
+  .invoice{
+    page-break-after:always;
+  }
+
+  .inone{
+    display:none;
+  }
+}
+</style>
+
+
+
+
+</head>
+
+<body>
+
+    <div class="inone">
+
+        <h2>NURSERY TO KG 1 AND 2 - Marksheet Print System</h2>
+
+        <button onclick="fetchData()" class="inone btn1">
+            Load Marksheet
+        </button>
+
+        <button onclick="printData()" class="inone btn1">
+            Print
+        </button>
+        <button onclick="clearStorage()" style="
+        padding:10px 20px;
+        background:#ff4d4d;
+        color:white;
+        border:none;
+        border-radius:8px;
+        cursor:pointer;
+        font-weight:bold;
+        ">
+        Clear Data
+        </button>
+        
+        <script>
+        function clearStorage() {
+        localStorage.clear();
+        alert("Local Storage Clear Ho Gaya ✅");
+        location.reload(); // page refresh (optional)
+        }
+        </script>
+
+        <a
+            href="https://docs.google.com/spreadsheets/d/1-Q7zJFE7TGXaOE-71g-9Na6ohfN9MNhNBNqT9pNiHv4/edit?pli=1&gid=2013894614#gid=2013894614">
+
+            <button class="inone btn1">
+                Sheet Link
+            </button>
+
+        </a>
+
+    </div>
+
+
+    <div id="invoiceContainer"></div>
+
+
+    <script>
+
+        let invoices = [];
+        let apiURL = "https://script.google.com/macros/s/AKfycbz-_DGaraEGdPqRALO4NKEJj4upOUlUA4sBTvKUcQV5LGmJ8nFRt30D_KX1f-8zoq0Y/exec";
+
+
+        window.onload = function () {
+
+            let savedData = localStorage.getItem("marksheetData");
+
+            if (savedData) {
+
+                let data = JSON.parse(savedData);
+                renderData(data);
+
+            }
+
+        };
+
+
+        function fetchData() {
+
+            Swal.fire({
+                title: 'Loading Marksheet...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            fetch(apiURL)
+
+                .then(response => response.json())
+
+                .then(data => {
+
+                    Swal.close();
+
+                    localStorage.setItem("marksheetData", JSON.stringify(data));
+
+                    renderData(data);
+
+                })
+
+                .catch(error => {
+
+                    Swal.close();
+
+                    Swal.fire(
+                        "Error",
+                        "Failed to load Marksheet. Please try again.",
+                        "error"
+                    );
+
+                    console.error(error);
+
+                });
+
+        }
+
+
+
+        function renderData(data) {
+
+            let container = document.getElementById("invoiceContainer");
+            container.innerHTML = "";
+            invoices = [];
+
+            data.forEach(row => {
+
+                let invoice = document.createElement("div");
+                invoice.className = "invoice";
+                invoice.style.display = "block";
+
+                function formatNumber(value) {
+
+                    let num = parseFloat(value);
+
+                    if (!isNaN(num)) {
+
+                        let decimalCount = (num.toString().split('.')[1] || "").length;
+
+                        return decimalCount > 1 ? num.toFixed(1) : num;
+
+                    }
+
+                    return value;
+
+                }
+
+                invoice.innerHTML = `
+
+
+<div class="r">
+
+<img class="img" src="${row[12]}">
+<img class="studentphoto" src="${row[11]}">
+
+<br><br><br><br><br><br><br><br>
+
+<table class="infotable1">
+       <tr>
+           <th> Roll Number</th>
+           <th> Class</th>
+           <th> Scholar Number</th>
+           <th> SSSM ID</th>
+           <th> Aadhar Number</th>
+           
+       </tr>
+
+       <tr>
+          <td>${row[0]}</td>
+          <td>${row[5]}</td>
+          <td>${row[1]}</td>
+          <td>${row[10]}</td>
+          <td>${row[9]}</td>     
+       </tr>
+</table>
+
+<br><br><br><br>
+
+
+
+
+<table class="nametable">
+
+<tr>
+<th class="name" width="180px">STUDENT'S NAME</th> <td class="name" width="250px"> : ${row[2]}</td>
+<th class="name" width="150px">FATHER'S NAME</th> <td class="name"> : ${row[6]}</td>
+</tr>
+
+<tr>
+<th class="name">DATE OF BIRTH</th><td class="name"> : ${row[4]} </td>
+<th class="name">MOTHERS'S NAME</th><td class="name"> : ${row[7]}</td>
+
+</tr>
+
+<tr>
+<th class="name">GENDER</th> <td class="name"> : ${row[3]}</td>
+<th class="name">CATEGORY</th> <td class="name"> : ${row[8]}</td>
+</table>
+
+<br><br><br><br><br><br>
+
+<h3 class="marksHeading">ASSESSMENT SHEET</h3>
+<br>
+
+<table class="mtt">
+
+<tr>
+
+<th rowspan="3">Sr.N.</th>
+<th rowspan="3">SUBJECT</th>
+
+<th colspan="2" rowspan="2">
+MONTHLY <br>
+EVALUATION <br>
+(10 MARKS)
+</th>
+
+<th colspan="2" rowspan="2">
+HALF YEARLY <br>
+EVALUATION <br>
+(20 MARKS)
+</th>
+
+<th colspan="4">
+ANNUAL EVALUATION
+(70 MARKS)
+</th>
+
+<th rowspan="3">
+TOTAL MARKS (100)
+</th>
+
+<th rowspan="3">
+OVERALL GRADE
+</th>
+
+<td class="nam">...</td>
+
+</tr>
+
+
+<tr>
+
+<th colspan="2">
+WRITTEN <br>
+(60 MARKS)
+</th>
+
+<th colspan="2">
+CO-CURRICULAR <br>
+ACTIVITIES <br>
+(10 MARKS)
+</th>
+
+</tr>
+
+
+<tr>
+
+<th>MARKS OBTAINED</th>
+<th>GRADE</th>
+
+<th>MARKS OBTAINED</th>
+<th>GRADE</th>
+
+<th>MARKS OBTAINED</th>
+<th>GRADE</th>
+
+<th>MARKS OBTAINED</th>
+<th>GRADE</th>
+
+</tr>
+
+
+<tr>
+
+<td>1</td>
+<td style="text-align:left;">HINDI</td>
+
+<td>${row[32]}</td>
+<td>${row[33]}</td>
+
+<td>${row[50]}</td>
+<td>${row[51]}</td>
+
+<td>${row[67]}</td>
+<td>${row[68]}</td>
+
+<td>${row[80]}</td>
+<td>${row[81]}</td>
+
+<td>${formatNumber(row[97])}</td>
+<td>${row[98]}</td>
+
+</tr>
+
+
+<tr>
+
+<td>2</td>
+<td style="text-align:left;">ENGLISH</td>
+
+<td>${row[35]}</td>
+<td>${row[36]}</td>
+
+<td>${row[53]}</td>
+<td>${row[54]}</td>
+
+<td>${row[69]}</td>
+<td>${row[70]}</td>
+
+<td>${row[83]}</td>
+<td>${row[84]}</td>
+
+<td>${formatNumber(row[99])}</td>
+<td>${row[100]}</td>
+
+</tr>
+
+
+<tr>
+
+<td>3</td>
+<td style="text-align:left;">MATHEMATICS</td>
+
+<td>${row[38]}</td>
+<td>${row[39]}</td>
+
+<td>${row[56]}</td>
+<td>${row[57]}</td>
+
+<td>${row[71]}</td>
+<td>${row[72]}</td>
+
+<td>${row[86]}</td>
+<td>${row[87]}</td>
+
+<td>${formatNumber(row[101])}</td>
+<td>${row[102]}</td>
+
+</tr>
+
+
+<tr>
+
+<td>4</td>
+<td style="text-align:left;">ORAL</td>
+
+<td>${row[41]}</td>
+<td>${row[42]}</td>
+
+<td>${row[59]}</td>
+<td>${row[60]}</td>
+
+<td>${row[73]}</td>
+<td>${row[74]}</td>
+
+<td>${row[89]}</td>
+<td>${row[90]}</td>
+
+<td>${formatNumber(row[103])}</td>
+<td>${row[104]}</td>
+
+</tr>
+
+
+<tr>
+
+<td>5</td>
+<td style="text-align:left;">DRAWING</td>
+
+<td>${row[44]}</td>
+<td>${row[45]}</td>
+
+<td>${row[62]}</td>
+<td>${row[63]}</td>
+
+<td>${row[75]}</td>
+<td>${row[76]}</td>
+
+<td>${row[92]}</td>
+<td>${row[93]}</td>
+
+<td>${formatNumber(row[105])}</td>
+<td>${row[106]}</td>
+
+</tr>
+
+
+<tr>
+
+<td>6</td>
+<td style="text-align:left;">PROJECT</td>
+
+<td>${row[47]}</td>
+<td>${row[48]}</td>
+
+<td>${row[65]}</td>
+<td>${row[66]}</td>
+
+<td>${row[77]}</td>
+<td>${row[78]}</td>
+
+<td>${row[95]}</td>
+<td>${row[96]}</td>
+
+<td>${formatNumber(row[107])}</td>
+<td>${row[108]}</td>
+
+</tr>
+</table>
+</div>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
+				   
+
+    <table class="st">
+       <tr>
+          <td><b>TOTAL WORKING DAYS: </b>${row[110]}</td>
+          <td><b>PROMOTED TO CLASS: </b>${row[113]}</td>
+          <td><b>TOTAL SCORE: </b>${formatNumber(row[114])}</td>
+          <td rowspan="" style="text-align:left;"><b>GRADE :</b> ${row[116]}</td>
+        </tr>
+        <tr>
+          <td><b>TOTAL ATTENDANCE: </b>${row[111]}</td>
+          <td  width=""><b>ATTENDANCE PERCENTAGE: </b>${formatNumber(row[112])}% </td>
+          <td><b>PERCENT: </b>${formatNumber(row[115])}%</</td>
+          <td><b>RESULT: </b>${row[117]}</td>
+        </tr>
+        <tr>
+           <td colspan="4"><b>Class Teacher’s Remarks:</b> Very Good keep it up.</td>
+        </tr>
+        <tr>
+             <td colspan="4"><b>Environmental Educatoion & Disaster Management GRADE :</b> A+ </td>
+        </tr>
+    </table>
+
+
+
+
+ 
+ 
+ 
+ <table class="singnatureTable">  
+    <tr>
+        <td class="singnatureTd"><b>Place:</b> Khamra</td>
+        <td class="singnatureTd">${row[14]}</td>
+        <td class="singnatureTd">${row[15]}</td>
+        <td class="singnatureTd">${row[13]}</td>
+    </tr>
+    <tr>
+        <td class="singnatureTd"><b>Date:</b> 31/03/2026</td>
+        <td class="singnatureTd"><b>CLASS TEACHER</b></td>
+        <td class="singnatureTd"><b>ACADEMIC INCHARGE</b></td>
+        <td class="singnatureTd"><b>PRINCIPAL</b></td>
+    </tr>
+ </table>
+ 
+
+<p class="prem-janghela"> Prepared through <b>TROLLIFY INDUSTRY,</b> designed for SNPS by <b>Prem Janghela</b>,9752776923 <p>
+
+
+`;
+
+                container.appendChild(invoice);
+                invoices.push(invoice);
+
+            });
+
+        }
+
+
+
+        function printData() {
+
+            if (invoices.length === 0) {
+
+                Swal.fire(
+                    "Warning",
+                    "No data to print. Please load Marksheet first.",
+                    "warning"
+                );
+
+                return;
+
+            }
+
+            setTimeout(() => {
+                window.print();
+            }, 500);
+
+        }
+
+    </script>
+
+</body>
+
+</html>
